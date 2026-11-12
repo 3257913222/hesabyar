@@ -1,1 +1,43 @@
+name: Hesabyar Android APK Build
 
+on: [workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Extract project
+        run: |
+          unzip -o Hesabyar_Android_CloudBuild_v1.zip -d project
+
+      - name: Locate Gradle project
+        run: |
+          find project -name gradlew -type f
+          
+      - name: Build APK
+        run: |
+          WRAPPER=$(find project -name gradlew -type f | head -n 1)
+          if [ -z "$WRAPPER" ]; then
+            echo "Gradle wrapper not found"
+            exit 1
+          fi
+          chmod +x "$WRAPPER"
+          cd "$(dirname "$WRAPPER")"
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hesabyar-APK
+          path: project/**/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
