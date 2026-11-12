@@ -23,23 +23,23 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install SDK
+      - name: Install Android SDK
         run: |
           sdkmanager --install "platforms;android-35" "build-tools;35.0.0"
 
-      - name: Install Gradle
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
 
-      - name: Extract project
+      - name: Extract Hesabyar Project
         run: |
+          mkdir -p project
           unzip -o .github/workflows/Hesabyar_CloudBuild_RootFixed.zip -d project
 
       - name: Build APK
         run: |
-          ROOT=$(dirname "$(find project -type f -name settings.gradle.kts | head -n 1)")
-          cd "$ROOT"
+          cd project
           gradle --no-daemon assembleDebug
 
       - name: Upload APK
